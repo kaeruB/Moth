@@ -29,10 +29,10 @@ object MothMain extends LazyLogging {
         ).start()
   }
 
+  // do przemyslenia
   private def cellToColorRegions(cell: SmellingCell): Color = {
 //    val smellValue = cell.smell.map(_.map(_.value).max).max.toFloat
 //    val brightness = Math.pow(smellValue, 0.1).toFloat
-//
 //
 //    if (smellValue < 0.00001) {
 //      val hue = 1f

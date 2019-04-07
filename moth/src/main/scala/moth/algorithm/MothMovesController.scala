@@ -7,16 +7,28 @@ import pl.edu.agh.xinuk.algorithm.MovesController
 import pl.edu.agh.xinuk.model._
 
 import scala.collection.immutable.TreeSet
-import scala.util.Random
 
 final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config: MothConfig) extends MovesController {
-//
-//  private val random = new Random(System.nanoTime())
-//
+
+  private val random = new scala.util.Random(System.nanoTime())
+  private val randomInt = scala.util.Random
+
   override def initialGrid: (Grid, MothMetrics) = {
     val grid = Grid.empty(bufferZone)
 
-    grid.cells(config.gridSize / 4)(config.gridSize / 4) = LampCell.create(config.mothInitialSignal)
+    //do przemyslenia czy config.lampInitialSignal ma sens
+    for (i <- 1 to config.lampsNumber)
+      grid.cells(randomInt.nextInt(config.gridSize))(randomInt.nextInt(config.gridSize)) = LampCell.create(config.lampInitialSignal)
+
+    for (i <- 1 to config.initialMothNumber) {
+      var randX = randomInt.nextInt(config.gridSize)
+      var randY = randomInt.nextInt(config.gridSize)
+//      while (w grid.cells(randX)(randY) jest juz LampCell) {
+//        randX = randomInt.nextInt(config.gridSize)
+//        randY = randomInt.nextInt(config.gridSize)
+//      }
+      grid.cells(randX)(randY) = MothCell.create(config.mothInitialSignal)
+    }
 
     val metrics = MothMetrics.empty()
     (grid, metrics)
@@ -29,21 +41,22 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
       newGrid.cells(x)(y) = cell
     }
 
+    // to do przepatrzenia czy ok dla MothCell
     def moveCells(x: Int, y: Int, cell: GridPart): Unit = {
-//      val destination = (x + random.nextInt(3) - 1, y + random.nextInt(3) - 1)
-//      val vacatedCell = EmptyCell(cell.smell)
-//      val occupiedCell = MockCell.create(config.mockInitialSignal)
-//
-//      newGrid.cells(destination._1)(destination._2) match {
-//        case EmptyCell(_) =>
-//          newGrid.cells(x)(y) = vacatedCell
-//          newGrid.cells(destination._1)(destination._2) = occupiedCell
-//        case BufferCell(EmptyCell(_)) =>
-//          newGrid.cells(x)(y) = vacatedCell
-//          newGrid.cells(destination._1)(destination._2) = BufferCell(occupiedCell)
-//        case _ =>
-//          newGrid.cells(x)(y) = occupiedCell
-//      }
+      val destination = (x + random.nextInt(3) - 1, y + random.nextInt(3) - 1)
+      val vacatedCell = EmptyCell(cell.smell)
+      val occupiedCell = MothCell.create(config.mothInitialSignal)
+
+      newGrid.cells(destination._1)(destination._2) match {
+        case EmptyCell(_) =>
+          newGrid.cells(x)(y) = vacatedCell
+          newGrid.cells(destination._1)(destination._2) = occupiedCell
+        case BufferCell(EmptyCell(_)) =>
+          newGrid.cells(x)(y) = vacatedCell
+          newGrid.cells(destination._1)(destination._2) = BufferCell(occupiedCell)
+        case _ =>
+          newGrid.cells(x)(y) = occupiedCell
+      }
     }
 
     val (dynamicCells, staticCells) = (for {

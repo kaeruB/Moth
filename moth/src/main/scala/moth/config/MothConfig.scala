@@ -16,5 +16,8 @@ final case class MothConfig(
                              signalSpeedRatio: Int,
                              iterationsNumber: Long,
 
-                             mothInitialSignal: Signal
+                             mothInitialSignal: Signal,
+                             lampInitialSignal: Signal,
+                             lampsNumber: Int,
+                             initialMothNumber: Int
                            ) extends XinukConfig
