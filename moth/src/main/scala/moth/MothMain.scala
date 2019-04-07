@@ -9,11 +9,6 @@ import moth.model.parallel.MothConflictResolver
 import pl.edu.agh.xinuk.Simulation
 import pl.edu.agh.xinuk.model.{DefaultSmellPropagation, Obstacle, SmellingCell}
 
-/*
-konstruuje symulację z pozostałych komponentów
-jest tu komponent tłumaczący komórki na kolory
- */
-
 object MothMain extends LazyLogging {
   private val configPrefix = "moth"
   private val metricHeaders = Vector()
