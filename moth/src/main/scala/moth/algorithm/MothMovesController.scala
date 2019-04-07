@@ -43,17 +43,24 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
 
     // to do przepatrzenia czy ok dla MothCell
     def moveCells(x: Int, y: Int, cell: GridPart): Unit = {
-      val destination = (x + random.nextInt(3) - 1, y + random.nextInt(3) - 1)
+      var destinationX = x + random.nextInt(3) - 1
+      if (destinationX == config.gridSize) destinationX -= 1
+      if (destinationX == -1) destinationX += 1
+
+      var destinationY = y + random.nextInt(3) - 1
+      if (destinationY == config.gridSize) destinationY -= 1
+      if (destinationY == -1) destinationY += 1
+
       val vacatedCell = EmptyCell(cell.smell)
       val occupiedCell = MothCell.create(config.mothInitialSignal)
 
-      newGrid.cells(destination._1)(destination._2) match {
+      newGrid.cells(destinationX)(destinationY) match {
         case EmptyCell(_) =>
           newGrid.cells(x)(y) = vacatedCell
-          newGrid.cells(destination._1)(destination._2) = occupiedCell
+          newGrid.cells(destinationX)(destinationY) = occupiedCell
         case BufferCell(EmptyCell(_)) =>
           newGrid.cells(x)(y) = vacatedCell
-          newGrid.cells(destination._1)(destination._2) = BufferCell(occupiedCell)
+          newGrid.cells(destinationX)(destinationY) = BufferCell(occupiedCell)
         case _ =>
           newGrid.cells(x)(y) = occupiedCell
       }
