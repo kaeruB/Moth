@@ -9,6 +9,11 @@ import pl.edu.agh.mock.model.parallel.MockConflictResolver
 import pl.edu.agh.xinuk.Simulation
 import pl.edu.agh.xinuk.model.{DefaultSmellPropagation, Obstacle, SmellingCell}
 
+/*
+konstruuje symulację z pozostałych komponentów
+jest tu komponent tłumaczący komórki na kolory
+ */
+
 object MockMain extends LazyLogging {
   private val configPrefix = "mock"
   private val metricHeaders = Vector()
@@ -28,8 +33,15 @@ object MockMain extends LazyLogging {
   }
 
   private def cellToColorRegions(cell: SmellingCell): Color = {
+    /*  Znajdowany jest najsilniejszy
+kierunkowy sygnał i zamieniany na jasność.  */
     val smellValue = cell.smell.map(_.map(_.value).max).max.toFloat
     val brightness = Math.pow(smellValue, 0.1).toFloat
+
+    /*
+    kolejne rzędy wielkości otrzymują inne
+odcienie, żeby łatwiejsze było rozróżnianie regionów o podobnej sile sygnału
+     */
     if (smellValue < 0.00001) {
       val hue = 1f
       val saturation = 1f

@@ -12,14 +12,33 @@ object MockConflictResolver extends ConflictResolver[MockConfig] {
 
   override def resolveConflict(current: GridPart, incoming: SmellingCell)(implicit config: MockConfig): (GridPart, MockMetrics) = {
     (current, incoming) match {
-      case (Obstacle, _) =>
+      case (Obstacle, _) => /* Jeżeli w danym miejscu znajdowała się przeszkoda (Obstacle), to pozostaje ona bez zmian. */
         (Obstacle, MockMetrics.empty())
+
+        /*
+        jeżeli obie były puste, to wynikiem jest pusta
+        komórka z sumarycznym sygnałem.
+         */
       case (EmptyCell(currentSmell), EmptyCell(incomingSmell)) =>
         (EmptyCell(currentSmell + incomingSmell), MockMetrics.empty())
+
+      /* Jeżeli komórka obecna lub przesyłana jest pusta, */ /*  to jej sygnał jest sumowany z sygnałem
+drugiej komórki */
       case (MockCell(currentSmell), EmptyCell(incomingSmell)) =>
-        (MockCell(currentSmell + incomingSmell), MockMetrics.empty())
+        (MockCell(currentSmell + incomingSmell), MockMetrics.empty())  /* to w rezultacie otrzymujemy MockCell z
+sumarycznym sygnałem, */
+
+      /* Jeżeli była ona typu MockCell */
+      /* to w rezultacie otrzymujemy MockCell z
+sumarycznym sygnałem, */
       case (EmptyCell(currentSmell), MockCell(incomingSmell)) =>
         (MockCell(currentSmell + incomingSmell), MockMetrics.empty())
+
+        /*
+        Jeżeli obie komórki to MockCell, to występuje kolizja
+         dwie     MockCell zastępowane są jedną o sumarycznym sygnale, w rezultacie zmniejszając liczbę
+    komórek MockCell w symulacji.
+         */
       case (MockCell(currentSmell), MockCell(incomingSmell)) =>
         (MockCell(currentSmell + incomingSmell), MockMetrics.empty())
       case (x, y) => throw new UnsupportedOperationException(s"Unresolved conflict: $x with $y")
