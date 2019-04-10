@@ -8,6 +8,8 @@ import pl.edu.agh.xinuk.model._
 
 import scala.collection.immutable.TreeSet
 
+
+// pomyslec nad smellem - jak to dziala itp.
 final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config: MothConfig) extends MovesController {
 
   private val random = new scala.util.Random(System.nanoTime())
@@ -16,7 +18,10 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
   override def initialGrid: (Grid, MothMetrics) = {
     val grid = Grid.empty(bufferZone)
 
-    //do przemyslenia czy config.lampInitialSignal ma sens
+    //do przemyslenia czy config.lampInitialSignal ma sens - powinien byc raczej inny dla lamp i dla moth (jeden dodatni, drugi ujemny - do sprawdzenia)
+    // wartosc oczekiwana w ustawianiu na poczatku lamp, zeby jak bedzie wiecej workerow to nie bylo na kazdej planszy
+    // po tyle samo lamp tylko losowo (podobnie jak w torch, a nie robic tak jak w mock, ze kazde okienko ma tyle samo lamp)
+    // to samo sie tyczy ciem
     for (i <- 1 to config.lampsNumber)
       grid.cells(randomInt.nextInt(config.gridSize))(randomInt.nextInt(config.gridSize)) = LampCell.create(config.lampInitialSignal)
 
@@ -54,6 +59,7 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
       val vacatedCell = EmptyCell(cell.smell)
       val occupiedCell = MothCell.create(config.mothInitialSignal)
 
+      //do poprawienia
       newGrid.cells(destinationX)(destinationY) match {
         case EmptyCell(_) =>
           newGrid.cells(x)(y) = vacatedCell
