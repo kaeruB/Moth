@@ -2,7 +2,11 @@ package moth.simulation
 
 import pl.edu.agh.xinuk.simulation.Metrics
 
-final case class MothMetrics() extends Metrics {
+final case class MothMetrics(
+//                              mothCount: Long,
+//                             lightCount: Long,
+//                             mothDeaths: Long
+                            ) extends Metrics {
   override def log: String = {
     s""
   }
