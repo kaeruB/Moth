@@ -1,4 +1,4 @@
-package pl.edu.agh.moth
+package moth
 
 import java.awt.Color
 

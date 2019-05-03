@@ -18,6 +18,7 @@ trait ForaminiferaAccessible[+T <: GridPart] {
 // zajace
 object ForaminiferaAccessible {
 
+  // przypadek gdy zajac zje kapuste - dodaje mu sie energia
   def unapply(arg: AlgaeCell)(implicit config: ForminConfig): ForaminiferaAccessible[ForaminiferaCell] =
     new ForaminiferaAccessible[ForaminiferaCell] {
       override def withForaminifera(energy: Energy, lifespan: Long): ForaminiferaCell = ForaminiferaCell(energy + config.algaeEnergeticCapacity, arg.smellWith(config.foraminiferaInitialSignal), lifespan)
