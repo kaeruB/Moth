@@ -88,17 +88,13 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
       if (destinationY == config.gridSize) destinationY -= 1
       if (destinationY == -1) destinationY += 1
 
-      val newy = MothCell(cell.smell, MothType.Female)
 
       var occupiedCell: MothCell = MothCell.create(config.mothInitialSignal, MothType.Male)
-
       if(created == 1){
         occupiedCell = MothCell.create(config.mothInitialSignal, MothType.Female)
 
       }
-      else{
-        occupiedCell = MothCell.create(config.mothInitialSignal, MothType.Female)
-      }
+
       val vacatedCell = EmptyCell(cell.smell)
 
       newGrid.cells(destinationX)(destinationY) match {
@@ -119,8 +115,8 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
       y <- 0 until config.gridSize
     } yield (x, y, grid.cells(x)(y))).partition({
 
-//      case (_, _, MothCellMale(_)) => true //mothCell sie przemieszcza
-//      case (_, _, MothCellFemale(_)) => true //mothCell sie przemieszcza
+//      case (_, _, MothCellMale(_) | MothCellFemale(_)) => true //mothCellMale sie przemieszcza
+//      case (_, _, MothCellFemale(_)) => true //mothCellFemale sie przemieszcza
       case (_, _, MothCell(_, _)) => true //mothCell sie przemieszcza
       case (_, _, _) => false   //pozostale, w tym lampCell nie przemieszcza sie
     })
