@@ -69,7 +69,7 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
     Grid.SubcellCoordinates
       .map { case (i, j) => cell.smell(i)(j) }
       .zipWithIndex
-      .sorted(implicitly[Ordering[(Signal, Int)]]) //.reverse - jakby bylo reverse to by sie odpychaly...
+      .sorted(implicitly[Ordering[(Signal, Int)]].reverse) //.reverse
       .iterator
       .map { case (_, idx) =>
         val (i, j) = neighbourCellCoordinates(idx)
@@ -80,10 +80,20 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
   def selectDestinationCell(possibleDestinations: Iterator[(Int, Int, GridPart)], newGrid: Grid): commons.Opt[(Int, Int, GridPart)] = {
     possibleDestinations
       .map { case (i, j, current) => (i, j, current, newGrid.cells(i)(j)) }
+
+ /* dwie wersje - nie wiem czy to coś zmienia*/
+      // V1
       .collectFirstOpt {
-        case (i, j, currentCell, _) => // tu moze cos zepsulam
+        case (i, j, currentCell, _) =>
           (i, j, currentCell)
       }
+    //V2
+//      .collectFirstOpt {
+//              case (i, j, currentCell@EmptyCell(_), EmptyCell(_)) =>
+//                (i, j, currentCell)
+//              case (i, j, currentCell@BufferCell(EmptyCell(_)), BufferCell(EmptyCell(_))) =>
+//                (i, j, currentCell)
+//            }
 
     // zeby lataly bardziej losowo jak cmy (tak jak w pierwotnej wersji), warto byloby to dodac jakos:
     //      var destinationX = x + random.nextInt(3) - 1
@@ -104,6 +114,12 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
     }
 
     def moveMothCells(x: Int, y: Int, cell: MothCell): Unit = {
+      /*
+      1. Może tak być, że jak tutaj kopiujemy smell ćmy to niszczymy(nadpisujemy smellem ciem) smell lamp
+      => smell lamp się już dalej nie propaguje. Jeśli tak by było to będzie to pewnie powód dziwnego zachowania ciem.
+      2. Do debugowania warto pokolorować smell, coś w Mocku jest z tym. Wtedy zobaczymy co się z tym dzieje :P
+       */
+
       val destinations = calculatePossibleDestinations(cell, x, y, grid)
       val destination = selectDestinationCell(destinations, newGrid)
 
