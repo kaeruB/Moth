@@ -22,10 +22,12 @@ object MothMain extends LazyLogging {
       DefaultSmellPropagation.calculateSmellAddendsStandard)(
           new MothMovesController(_)(_),
           {
-            case MothCell(_, MothType.Female) => Color.BLUE // Color.PINK
+            case MothCell(_, MothType.Female) => Color.PINK
             case MothCell(_, MothType.Male) => Color.BLUE
+            case MothCell(_, MothType.Child) => Color.RED
             case LampCell(_) => Color.YELLOW
             case cell: SmellingCell => Color.BLACK
+              // DO TESTOW - KOLORKI:
             //case cell: SmellingCell => cellToColorRegionsPrimitive(cell)
           }
         ).start()
@@ -37,28 +39,6 @@ object MothMain extends LazyLogging {
     else if (smellValue > 0.3 && smellValue <= 0.8) Color.PINK
     else if (smellValue > 0 && smellValue <= 0.3) Color.WHITE // baaardzo maly smell, ale czemu przy lampie jest maly smell, a dalej wiekszy?
     else Color.BLACK
-  }
-
-  private def cellToColorRegions(cell: SmellingCell): Color = {
-    val smellValue = cell.smell.map(_.map(_.value).max).max.toFloat
-    val brightness = Math.pow(smellValue, 0.1).toFloat
-    if (smellValue < 0.00001) {
-      val hue = 1f
-      val saturation = 1f
-      Color.getHSBColor(hue, saturation, brightness)
-    } else if (smellValue < 0.001) {
-      val hue = 0.65f
-      val saturation = 1f
-      Color.getHSBColor(hue, saturation, brightness)
-    } else if (smellValue < 0.1) {
-      val hue = 0.28f
-      val saturation = 1f
-      Color.getHSBColor(hue, saturation, brightness)
-    } else {
-      val hue = 0.11f
-      val saturation = 0.69f
-      Color.getHSBColor(hue, saturation, brightness)
-    }
   }
 }
 
