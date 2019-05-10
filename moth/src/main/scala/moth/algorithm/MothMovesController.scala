@@ -8,6 +8,7 @@ import moth.model.MothType.MothType
 import moth.model.{LampCell, MothCell, MothType}
 import moth.simulation.MothMetrics
 import pl.edu.agh.xinuk.algorithm.MovesController
+import pl.edu.agh.xinuk.model.Cell.SmellArray
 import pl.edu.agh.xinuk.model._
 
 import scala.collection.immutable.TreeSet
@@ -69,7 +70,7 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
     Grid.SubcellCoordinates
       .map { case (i, j) => cell.smell(i)(j) }
       .zipWithIndex
-      .sorted(implicitly[Ordering[(Signal, Int)]].reverse) //.reverse
+      .sorted(implicitly[Ordering[(Signal, Int)]].reverse)
       .iterator
       .map { case (_, idx) =>
         val (i, j) = neighbourCellCoordinates(idx)
@@ -78,15 +79,27 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
   }
 
   def selectDestinationCell(possibleDestinations: Iterator[(Int, Int, GridPart)], newGrid: Grid): commons.Opt[(Int, Int, GridPart)] = {
-    possibleDestinations
+    var destination: commons.Opt[(Int, Int, GridPart)] = possibleDestinations
       .map { case (i, j, current) => (i, j, current, newGrid.cells(i)(j)) }
 
  /* dwie wersje - nie wiem czy to coś zmienia*/
       // V1
       .collectFirstOpt {
         case (i, j, currentCell, _) =>
+//          // println("i: " + i + ", j: " + j)
+//          var destinationX = (i - 1) + random.nextInt( (i + 1 - (i - 1)) + 1)
+//          if (destinationX >= config.gridSize) destinationX = config.gridSize - 2
+//          if (destinationX < 0) destinationX = 1
+//
+//          var destinationY = (j - 1) + random.nextInt( (j + 1) - (j - 1) + 1)
+//          if (destinationY >= config.gridSize) destinationY = config.gridSize - 2
+//          if (destinationY < 0) destinationY = 1
+//
+//          (destinationX, destinationY, currentCell)
           (i, j, currentCell)
+
       }
+    destination
     //V2
 //      .collectFirstOpt {
 //              case (i, j, currentCell@EmptyCell(_), EmptyCell(_)) =>
@@ -95,14 +108,6 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
 //                (i, j, currentCell)
 //            }
 
-    // zeby lataly bardziej losowo jak cmy (tak jak w pierwotnej wersji), warto byloby to dodac jakos:
-    //      var destinationX = x + random.nextInt(3) - 1
-    //      if (destinationX == config.gridSize) destinationX -= 1
-    //      if (destinationX == -1) destinationX += 1
-    //
-    //      var destinationY = y + random.nextInt(3) - 1
-    //      if (destinationY == config.gridSize) destinationY -= 1
-    //      if (destinationY == -1) destinationY += 1
   }
 
   override def makeMoves(iteration: Long, grid: Grid): (Grid, MothMetrics) = {
@@ -111,6 +116,10 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
 
     def copyCells(x: Int, y: Int, cell: GridPart): Unit = {
       newGrid.cells(x)(y) = cell
+    }
+
+    def copyLampCells(x: Int, y: Int, cell: LampCell): Unit = {
+      newGrid.cells(x)(y) = LampCell.create(config.lampInitialSignal)
     }
 
     def moveMothCells(x: Int, y: Int, cell: MothCell): Unit = {
@@ -122,28 +131,66 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
 
       val destinations = calculatePossibleDestinations(cell, x, y, grid)
       val destination = selectDestinationCell(destinations, newGrid)
-
-      val vacatedCell = EmptyCell(cell.smell)
+      // val lampSmell = destination.get._3.smell.map(_.map(_.value).max).max - 0.001
+//      val vacatedCell = EmptyCell(cell.smell) // zamiast smellu motha, smell ten co byl //destination.get._3.smell  // cell.smell
 
       val mothType: MothType = cell match {
         case MothCell(_, MothType.Female) => MothType.Female
         case MothCell(_, MothType.Male) => MothType.Male
         case _ => null
       }
-      val occupiedCell = MothCell.create(config.mothInitialSignal, mothType)
+      // val occupiedCell = MothCell.create(config.mothInitialSignal, mothType)
 
-      destination match {
+
+//      var destinationX = destination.get._1
+//      var destinationY = destination.get._2
+
+      var destinationX = (destination.get._1 - 1) + random.nextInt(2 + 1)
+      if (destinationX >= config.gridSize) destinationX = config.gridSize - 2
+      if (destinationX < 0) destinationX = 1
+
+      var destinationY = (destination.get._2 - 1) + random.nextInt( 2 + 1)
+      if (destinationY >= config.gridSize) destinationY = config.gridSize - 2
+      if (destinationY < 0) destinationY = 1
+
+      val targetCell: GridPart = grid.cells(destinationX)(destinationY)
+      // val vacatedCell = EmptyCell(targetCell.smell) // zamiast smellu motha, smell ten co byl //destination.get._3.smell  // cell.smell
+
+//      val smellIntensity: Signal = {
+//        if (targetCell.smell.map(_.map(_.value).max).max.toFloat > 0)
+//          0.5
+//        else
+//          0
+//      }
+
+      val occupiedCell = MothCell(targetCell.smell, mothType)
+      val vacatedCell = EmptyCell(cell.smell)
+
+      Opt(destinationX, destinationY, targetCell) match {
         case Opt((i, j, EmptyCell(_))) =>
           newGrid.cells(i)(j) = occupiedCell
-          newGrid.cells(x)(y) = vacatedCell
+          newGrid.cells(x)(y) = vacatedCell // podmianka oproznionej celki na vacatedCell
           grid.cells(x)(y) = vacatedCell
         case Opt((i, j, BufferCell(EmptyCell(_)))) =>
           newGrid.cells(i)(j) = occupiedCell
-          newGrid.cells(x)(y) = vacatedCell
+          newGrid.cells(x)(y) = vacatedCell // podmianka oproznionej celki na vacatedCell
           grid.cells(x)(y) = vacatedCell
         case _ =>
           newGrid.cells(x)(y) = occupiedCell
       }
+
+//      destination match {
+//        case Opt((i, j, EmptyCell(_))) =>
+//          newGrid.cells(i)(j) = occupiedCell
+//          newGrid.cells(x)(y) = vacatedCell
+//          grid.cells(x)(y) = vacatedCell
+//        case Opt((i, j, BufferCell(EmptyCell(_)))) =>
+//          newGrid.cells(i)(j) = occupiedCell
+//          newGrid.cells(x)(y) = vacatedCell
+//          grid.cells(x)(y) = vacatedCell
+//        case _ =>
+//          newGrid.cells(x)(y) = occupiedCell
+//      }
     }
 
     val (dynamicCells, staticCells) = (for {
@@ -152,6 +199,7 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
     } yield (x, y, grid.cells(x)(y))).partition({
       case (_, _, MothCell(_, MothType.Female)) => true
       case (_, _, MothCell(_, MothType.Male)) => true
+      case (_, _, LampCell(_)) => true
       case (_, _, _) => false   //pozostale, w tym lampCell nie przemieszcza sie
     })
 
@@ -160,7 +208,8 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
     })
     dynamicCells.foreach({
       case (x, y, cell: MothCell) => moveMothCells(x, y, cell)
-      case _ =>
+      case (x, y, lamp: LampCell) => copyLampCells(x, y, lamp)
+      case (_, _, _) => println("Blad")
     })
 
     (newGrid, MothMetrics.empty())
