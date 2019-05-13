@@ -10,7 +10,11 @@ final case class MothMetrics() extends Metrics {
   override def series: Vector[(String, Double)] = Vector()
 
   override def +(other: Metrics): MothMetrics = {
-    this
+    other match {
+      case MothMetrics.EMPTY => this
+      case null => this
+      case _ => throw new UnsupportedOperationException(s"Metrics exception")
+    }
   }
 }
 

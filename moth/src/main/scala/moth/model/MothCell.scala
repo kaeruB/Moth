@@ -1,7 +1,7 @@
 package moth.model
 
 import pl.edu.agh.xinuk.model.Cell.SmellArray
-import pl.edu.agh.xinuk.model.{Cell, Signal, SmellingCell}
+import pl.edu.agh.xinuk.model._
 import moth.model.MothType.MothType
 
 final case class MothCell(smell: SmellArray, mothType: MothType) extends SmellingCell{
