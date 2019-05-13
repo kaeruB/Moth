@@ -4,6 +4,7 @@ import java.awt.Color
 
 import com.typesafe.scalalogging.LazyLogging
 import moth.algorithm.MothMovesController
+import moth.config.MothConfig
 import moth.model.{LampCell, MothCell, MothType}
 import moth.model.parallel.MothConflictResolver
 import pl.edu.agh.xinuk.Simulation
