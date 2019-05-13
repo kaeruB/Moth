@@ -9,6 +9,8 @@ import moth.model.parallel.MothConflictResolver
 import pl.edu.agh.xinuk.Simulation
 import pl.edu.agh.xinuk.model.{DefaultSmellPropagation, Obstacle, SmellingCell}
 
+import scala.collection.immutable.TreeSet
+
 object MothMain extends LazyLogging {
   private val configPrefix = "moth"
   private val metricHeaders = Vector()
@@ -20,7 +22,7 @@ object MothMain extends LazyLogging {
       metricHeaders,
       MothConflictResolver,
       DefaultSmellPropagation.calculateSmellAddendsStandard)(
-          new MothMovesController(_)(_),
+          new MothMovesController(_:TreeSet[(Int, Int)])(_:MothConfig),
           {
             case MothCell(_, MothType.Female) => Color.PINK
             case MothCell(_, MothType.Male) => Color.BLUE

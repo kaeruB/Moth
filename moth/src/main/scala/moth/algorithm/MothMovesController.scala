@@ -130,6 +130,7 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
 
   }
 
+
   override def makeMoves(iteration: Long, grid: Grid): (Grid, MothMetrics) = {
     this.grid = grid
     val newGrid = Grid.empty(bufferZone)
@@ -189,6 +190,7 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
         case _ =>
           newGrid.cells(x)(y) = occupiedCell
       }
+
     }
 
     val (dynamicCells, staticCells) = (for {
