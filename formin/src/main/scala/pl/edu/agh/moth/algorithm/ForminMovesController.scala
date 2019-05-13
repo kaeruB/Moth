@@ -48,9 +48,12 @@ final class ForminMovesController(bufferZone: TreeSet[(Int, Int)])(implicit conf
     val neighbourCellCoordinates = Grid.neighbourCellCoordinates(x, y)
     Grid.SubcellCoordinates
       .map { case (i, j) => cell.smell(i)(j) }
-      .zipWithIndex
-      .sorted(implicitly[Ordering[(Signal, Int)]].reverse)
-      .iterator
+      .zipWithIndex // kazdy element ma dokejony indeks
+      .sorted(implicitly[Ordering[(Signal, Int)]].reverse) // sorted - sort a sequential collection, wymagane jest implicit Ordering
+      // reverse - zwraca odwrotny ordering niz podany w Ordering
+      // czyli zajac idzie do kapusty - jakby nie bylo reverse to zajac idzie w strone kapusty
+
+      .iterator // iterate over a sequence of elements - dla kazdego elementu bedzie zaraz map
       .map { case (_, idx) =>
         val (i, j) = neighbourCellCoordinates(idx)
         (i, j, grid.cells(i)(j))
@@ -155,6 +158,7 @@ final class ForminMovesController(bufferZone: TreeSet[(Int, Int)])(implicit conf
       }
       destination match {
         case Opt((i, j, ForaminiferaAccessible(destination))) =>
+          // tu sie ustawia zajaca ktory zmienia miejce ???
           newGrid.cells(i)(j) = destination.withForaminifera(cell.energy - config.foraminiferaLifeActivityCost, cell.lifespan + 1)
           val vacated = EmptyCell(cell.smell)
           newGrid.cells(x)(y) = vacated
@@ -162,6 +166,7 @@ final class ForminMovesController(bufferZone: TreeSet[(Int, Int)])(implicit conf
         case Opt((i, j, inaccessibleDestination)) =>
           throw new RuntimeException(s"Foraminifera selected inaccessible destination ($i,$j): $inaccessibleDestination")
         case Opt.Empty =>
+          // tu sie ustawia zajaca ktory pozostaje w miejscu ????
           newGrid.cells(x)(y) = cell.copy(cell.energy - config.foraminiferaLifeActivityCost, lifespan = cell.lifespan + 1)
           grid.cells(x)(y)
       }
