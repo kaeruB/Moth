@@ -10,7 +10,6 @@ import moth.simulation.MothMetrics
 import pl.edu.agh.xinuk.algorithm.MovesController
 import pl.edu.agh.xinuk.model._
 
-import scala.Option
 import scala.collection.immutable.TreeSet
 
 final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config: MothConfig) extends MovesController {

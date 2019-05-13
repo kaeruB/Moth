@@ -1,6 +1,5 @@
 package moth.model
 
-import moth.model.MothType.MothType
 import pl.edu.agh.xinuk.model.Cell.SmellArray
 import pl.edu.agh.xinuk.model._
 import moth.model.MothType.MothType
