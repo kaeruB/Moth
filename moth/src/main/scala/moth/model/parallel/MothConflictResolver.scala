@@ -38,6 +38,14 @@ object MothConflictResolver extends ConflictResolver[MothConfig]{
       case (LampCell(currentSmell), LampCell(incomingSmell)) =>
         (LampCell(currentSmell + incomingSmell), MothMetrics.empty())
 
+//        do rozwazenia co ma powstac
+      case (MothCell(currentSmell, mothType), LampCell(incomingSmell)) =>
+        (LampCell(incomingSmell), MothMetrics.empty())
+
+      //        do rozwazenia co ma powstac
+      case (LampCell(currentSmell), MothCell(incomingSmell, mothType)) =>
+        (LampCell(currentSmell), MothMetrics.empty())
+
       case (Obstacle, _) => (Obstacle, MothMetrics.empty())
       case (x, y) => throw new UnsupportedOperationException(s"Unresolved conflict: $x with $y")
     }

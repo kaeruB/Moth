@@ -182,8 +182,8 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
           newGrid.cells(i)(j) = occupiedCell
           newGrid.cells(x)(y) = vacatedCell // podmianka oproznionej celki na vacatedCell
           grid.cells(x)(y) = vacatedCell
-        case Opt((i, j, BufferCell(EmptyCell(_)))) =>
-          newGrid.cells(i)(j) = occupiedCell
+        case Opt((i, j, BufferCell(EmptyCell(_)))) => //new cells  -
+          newGrid.cells(i)(j) = BufferCell(occupiedCell)
           newGrid.cells(x)(y) = vacatedCell // podmianka oproznionej celki na vacatedCell
           grid.cells(x)(y) = vacatedCell
         case _ =>
