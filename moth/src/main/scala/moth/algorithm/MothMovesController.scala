@@ -142,7 +142,12 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
           case Some((femaleX, femalseY)) =>
             // szuka wolnej celki kolo matki i jak jest to daje tam dzieciaka
             findEmptyCellForChild(femaleX, femalseY) match {
-              case  Some((childX, childY)) => newGrid.cells(childX)(childY) = MothCell.create(config.mothInitialSignal, MothType.Child)
+              //case  Some((childX, childY)) => newGrid.cells(childX)(childY) = MothCell.create(config.mothInitialSignal, MothType.Child)
+              case  Some((childX, childY)) =>
+                if (config.mothDeathChance < config.maleMothChance)
+                  newGrid.cells(childX)(childY) = MothCell.create(config.mothInitialSignal, MothType.Male)
+                else
+                  newGrid.cells(childX)(childY) = MothCell.create(config.mothInitialSignal, MothType.Female)
               case None =>
           }
           case None =>
@@ -160,7 +165,7 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
         val mothType: MothType = cell match {
           case MothCell(_, MothType.Female) => MothType.Female
           case MothCell(_, MothType.Male) => MothType.Male
-          case MothCell(_, MothType.Child) => MothType.Child
+          // case MothCell(_, MothType.Child) => MothType.Child
           case _ => null
         }
 
@@ -174,8 +179,10 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
         if (destinationY < 0) destinationY = 1
 
 
-        // dwa pierwsze warunki - cmy nie beda znikac wgl, ostatni warunek - cmy znikaja z prawdopodobienstwem jakims tam
-        if ((newGrid.cells(destinationX)(destinationY).isInstanceOf[LampCell] || newGrid.cells(destinationX)(destinationY).isInstanceOf[MothCell]) && random.nextDouble() > config.mothDeathChance) {
+        //newGrid.cells(destinationX)(destinationY).isInstanceOf[LampCell]
+//
+        // tu umiera tylko jak wpadnie na lampe - dwa pierwsze warunki - cmy nie beda znikac wgl, ostatni warunek - cmy znikaja z prawdopodobienstwem jakims tam
+        if ((newGrid.cells(destinationX)(destinationY).isInstanceOf[MothCell]) && random.nextDouble() > config.mothDeathChance) {
           destinationX = destination.get._1
           destinationY = destination.get._2
         }

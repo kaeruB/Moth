@@ -13,9 +13,6 @@ object MothConflictResolver extends ConflictResolver[MothConfig]{
 
   override def resolveConflict(current: GridPart, incoming: SmellingCell)(implicit config: MothConfig): (GridPart, MothMetrics) = {
     (current, incoming) match {
-//      case (EmptyCell(currentSmell), incomingCell) =>
-//        (incomingCell.withSmell(incomingCell.smell + currentSmell), MothMetrics.empty())
-
       case (EmptyCell(currentSmell), EmptyCell(incomingSmell)) =>
         (EmptyCell(currentSmell + incomingSmell), MothMetrics.empty())
 
@@ -25,7 +22,6 @@ object MothConflictResolver extends ConflictResolver[MothConfig]{
       case (EmptyCell(currentSmell), MothCell(incomingSmell, mothType)) =>
         (MothCell(currentSmell + incomingSmell, mothType), MothMetrics.empty())
 
-//        trzenba będzie rozważyc przypadki
       case (MothCell(currentSmell, mothType), MothCell(incomingSmell, currentMothType)) =>
         (MothCell(currentSmell + incomingSmell, mothType), MothMetrics.empty())
 
@@ -38,11 +34,9 @@ object MothConflictResolver extends ConflictResolver[MothConfig]{
       case (LampCell(currentSmell), LampCell(incomingSmell)) =>
         (LampCell(currentSmell + incomingSmell), MothMetrics.empty())
 
-//        do rozwazenia co ma powstac
       case (MothCell(currentSmell, mothType), LampCell(incomingSmell)) =>
         (LampCell(incomingSmell), MothMetrics.empty())
 
-      //        do rozwazenia co ma powstac
       case (LampCell(currentSmell), MothCell(incomingSmell, mothType)) =>
         (LampCell(currentSmell), MothMetrics.empty())
 
