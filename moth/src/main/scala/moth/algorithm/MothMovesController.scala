@@ -88,29 +88,6 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
 
   def searchForFemale(x: Int, y: Int, cell: MothCell, grid: Grid): Option[(Int, Int)] = {
     val neighbours = Grid.neighbourCellCoordinates(x, y)
-//    Grid.neighbourCellCoordinates(x, y).foreach(
-//      el => {
-//        val (femaleCells, otherCells) = (for {
-//            x <- neighbours.indices
-//          } yield (x, grid.cells(el._1)(el._2))).partition({
-//          case (_, MothCell(_, MothType.Female)) =>
-//            println(el._1 + " " + el._2)
-//            true
-//          case ( _, _) => false
-//        })
-//        femaleCells
-//      }
-//    )
-
-//    val (femaleCells, otherCells) = (for {
-//        x <- neighbours.indices
-//      } yield (x, grid.cells(neighbours(x)._1)(neighbours(x)._2))).partition({
-//      case (_, MothCell(_, MothType.Female)) =>
-//        true
-//      case ( _, _) => false
-//    })
-//
-
     val (femaleCells, otherCells) = (for {
       i <- neighbours.indices
     } yield (i, grid.cells(neighbours(i)._1)(neighbours(i)._2))).partition({
@@ -119,16 +96,30 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
       case ( _, _) => false
     })
 
-
     if (femaleCells.nonEmpty)
       Some(neighbours(femaleCells.head._1))
     else
       None
-
-//    grid.cells(el._1, el._2) = MothCell.create(config.mothInitialSignal, MothType.Child)
-
   }
 
+  def findEmptyCellForChild(x: Int, y: Int): Option[(Int, Int)] = {
+    val neighbours = Grid.neighbourCellCoordinates(x, y)
+    val (emptyCells, otherCells) = (for {
+      i <- neighbours.indices
+    } yield (i, grid.cells(neighbours(i)._1)(neighbours(i)._2))).partition({
+      case (_, EmptyCell(_)) =>
+        true
+      case (_, BufferCell(EmptyCell(_))) =>
+        true
+      case ( _, _) => false
+    })
+
+
+    if (emptyCells.nonEmpty)
+      Some(neighbours(emptyCells.head._1))
+    else
+      None
+  }
 
   override def makeMoves(iteration: Long, grid: Grid): (Grid, MothMetrics) = {
     this.grid = grid
@@ -147,8 +138,18 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
       // jak jest male to szuka female
       if (cell.mothType == MothType.Male) {
         searchForFemale(x, y, cell, grid) match {
-            // jak znajdzie female to na miejsce female pojawia sie child
-          case Some((femaleX, femalseY)) => newGrid.cells(femaleX)(femalseY) = MothCell.create(config.mothInitialSignal, MothType.Child)
+            // jak znajdzie female to
+          case Some((femaleX, femalseY)) =>
+            // szuka wolnej celki kolo matki i jak jest to daje tam dzieciaka
+            findEmptyCellForChild(femaleX, femalseY) match {
+              //case  Some((childX, childY)) => newGrid.cells(childX)(childY) = MothCell.create(config.mothInitialSignal, MothType.Child)
+              case  Some((childX, childY)) =>
+                if (config.mothDeathChance < config.maleMothChance)
+                  newGrid.cells(childX)(childY) = MothCell.create(config.mothInitialSignal, MothType.Male)
+                else
+                  newGrid.cells(childX)(childY) = MothCell.create(config.mothInitialSignal, MothType.Female)
+              case None =>
+          }
           case None =>
         }
       }
@@ -156,38 +157,54 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
       val destinations = calculatePossibleDestinations(cell, x, y, grid)
       val destination = selectDestinationCell(destinations, newGrid)
 
-      val mothType: MothType = cell match {
-        case MothCell(_, MothType.Female) => MothType.Female
-        case MothCell(_, MothType.Male) => MothType.Male
-        case _ => null
+      if (destination.isEmpty) {
+        copyCells(x, y, cell)
       }
+      else {
 
-      // zeby cmy sobie krazyly, a nie lecialy na wprost + wylapywaly lepiej linie smelli
-      var destinationX = (destination.get._1 - 1) + random.nextInt(2 + 1)
-      if (destinationX >= config.gridSize) destinationX = config.gridSize - 2
-      if (destinationX < 0) destinationX = 1
+        val mothType: MothType = cell match {
+          case MothCell(_, MothType.Female) => MothType.Female
+          case MothCell(_, MothType.Male) => MothType.Male
+          // case MothCell(_, MothType.Child) => MothType.Child
+          case _ => null
+        }
 
-      var destinationY = (destination.get._2 - 1) + random.nextInt( 2 + 1)
-      if (destinationY >= config.gridSize) destinationY = config.gridSize - 2
-      if (destinationY < 0) destinationY = 1
+        // zeby cmy sobie krazyly, a nie lecialy na wprost + wylapywaly lepiej linie smelli
+        var destinationX = (destination.get._1 - 1) + random.nextInt(2 + 1)
+        if (destinationX >= config.gridSize) destinationX = config.gridSize - 2
+        if (destinationX < 0) destinationX = 1
 
-      val targetCell: GridPart = grid.cells(destinationX)(destinationY)
-      // TUTAJ KLUCZ DO SUKCESU Z MOTHAMI LECACYMI DO LAMP:)
-      // do nowej celki nie kopiuje zapachu cmy, tylko ten sam zapach co tam byl (moze cmy, moze lampy, moze niczego)
-      val occupiedCell = MothCell(targetCell.smell, mothType)
-      val vacatedCell = EmptyCell(cell.smell)
+        var destinationY = (destination.get._2 - 1) + random.nextInt(2 + 1)
+        if (destinationY >= config.gridSize) destinationY = config.gridSize - 2
+        if (destinationY < 0) destinationY = 1
 
-      Opt(destinationX, destinationY, targetCell) match {
-        case Opt((i, j, EmptyCell(_))) =>
-          newGrid.cells(i)(j) = occupiedCell
-          newGrid.cells(x)(y) = vacatedCell // podmianka oproznionej celki na vacatedCell
-          grid.cells(x)(y) = vacatedCell
-        case Opt((i, j, BufferCell(EmptyCell(_)))) =>
-          newGrid.cells(i)(j) = occupiedCell
-          newGrid.cells(x)(y) = vacatedCell // podmianka oproznionej celki na vacatedCell
-          grid.cells(x)(y) = vacatedCell
-        case _ =>
-          newGrid.cells(x)(y) = occupiedCell
+
+        //newGrid.cells(destinationX)(destinationY).isInstanceOf[LampCell]
+//
+        // tu umiera tylko jak wpadnie na lampe - dwa pierwsze warunki - cmy nie beda znikac wgl, ostatni warunek - cmy znikaja z prawdopodobienstwem jakims tam
+        if ((newGrid.cells(destinationX)(destinationY).isInstanceOf[MothCell]) && random.nextDouble() > config.mothDeathChance) {
+          destinationX = destination.get._1
+          destinationY = destination.get._2
+        }
+
+        val targetCell: GridPart = grid.cells(destinationX)(destinationY)
+        // TUTAJ KLUCZ DO SUKCESU Z MOTHAMI LECACYMI DO LAMP:)
+        // do nowej celki nie kopiuje zapachu cmy, tylko ten sam zapach co tam byl (moze cmy, moze lampy, moze niczego)
+        val occupiedCell = MothCell(targetCell.smell, mothType)
+        val vacatedCell = EmptyCell(cell.smell)
+
+        Opt(destinationX, destinationY, targetCell) match {
+          case Opt((i, j, EmptyCell(_))) =>
+            newGrid.cells(i)(j) = occupiedCell
+            newGrid.cells(x)(y) = vacatedCell // podmianka oproznionej celki na vacatedCell
+            grid.cells(x)(y) = vacatedCell
+          case Opt((i, j, BufferCell(EmptyCell(_)))) => //new cells  -
+            newGrid.cells(i)(j) = BufferCell(occupiedCell)
+            newGrid.cells(x)(y) = vacatedCell // podmianka oproznionej celki na vacatedCell
+            grid.cells(x)(y) = vacatedCell
+          case _ =>
+            newGrid.cells(x)(y) = occupiedCell
+        }
       }
 
     }

@@ -22,5 +22,7 @@ final case class MothConfig(
                              initialMothNumber: Int,
                              chance: Double,
                              lampChance: Double,
-                             mothChance: Double
+                             mothChance: Double,
+                             mothDeathChance: Double,
+                             maleMothChance: Double
                            ) extends XinukConfig

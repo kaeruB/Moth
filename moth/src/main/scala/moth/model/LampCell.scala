@@ -5,7 +5,6 @@ import pl.edu.agh.xinuk.model.{Cell, Signal, SmellingCell}
 
 final case class LampCell(smell: SmellArray) extends SmellingCell{
   override type Self = LampCell
-
   override def withSmell(smell: SmellArray): LampCell = copy(smell = smell)
 }
 
