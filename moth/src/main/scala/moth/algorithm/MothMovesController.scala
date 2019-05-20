@@ -178,14 +178,21 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
         if (destinationY >= config.gridSize) destinationY = config.gridSize - 2
         if (destinationY < 0) destinationY = 1
 
-        if (newGrid.cells(destinationX)(destinationY).isInstanceOf[LampCell]){
-          // jezeli wylososwana wartośc jest mniejsza niz szansa, ze cma ma wleciec na lampe to wtedy zmieniamy kierunek latania cmy
-          //        dopiero jak większa to wtedy ta cma moze sobie leciec do lampy
-          if(random.nextDouble() > config.mothLampApproachChance){
-            destinationX = destinationX + random.nextInt(2+1)
-            destinationY = destinationY + random.nextInt(2+1)
+        if(destinationX+5 <= config.gridSize && destinationY+5 <= config.gridSize && destinationX > 5 && destinationY > 5){
+          if (newGrid.cells(destinationX+1)(destinationY+1).isInstanceOf[LampCell] || newGrid.cells(destinationX+1)(destinationY).isInstanceOf[LampCell]
+          || newGrid.cells(destinationX)(destinationY+1).isInstanceOf[LampCell] || newGrid.cells(destinationX-1)(destinationY-1).isInstanceOf[LampCell]
+          || newGrid.cells(destinationX-1)(destinationY).isInstanceOf[LampCell] || newGrid.cells(destinationX)(destinationY-1).isInstanceOf[LampCell]
+          || newGrid.cells(destinationX+1)(destinationY-1).isInstanceOf[LampCell] || newGrid.cells(destinationX+1)(destinationY-1).isInstanceOf[LampCell]){
+
+            // jezeli wylososwana wartośc jest mniejsza niz szansa, ze cma ma wleciec na lampe to wtedy zmieniamy kierunek latania cmy
+            //        dopiero jak większa to wtedy ta cma moze sobie leciec do lampy
+            if(random.nextDouble() > config.mothLampApproachChance){
+              destinationX = destinationX + 2 + random.nextInt(2+1)
+              destinationY = destinationY + 2 + random.nextInt(2+1)
+            }
           }
         }
+
 
         //newGrid.cells(destinationX)(destinationY).isInstanceOf[LampCell]
 //
@@ -193,6 +200,7 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
         if ((newGrid.cells(destinationX)(destinationY).isInstanceOf[MothCell]) && random.nextDouble() > config.mothDeathChance) {
           destinationX = destination.get._1
           destinationY = destination.get._2
+//          print("Coś się zmieniło, teraz: After: " + destinationX + " " + destinationY)
         }
 
         val targetCell: GridPart = grid.cells(destinationX)(destinationY)
