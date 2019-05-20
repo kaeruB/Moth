@@ -178,6 +178,14 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
         if (destinationY >= config.gridSize) destinationY = config.gridSize - 2
         if (destinationY < 0) destinationY = 1
 
+        if (newGrid.cells(destinationX)(destinationY).isInstanceOf[LampCell]){
+          // jezeli wylososwana wartośc jest mniejsza niz szansa, ze cma ma wleciec na lampe to wtedy zmieniamy kierunek latania cmy
+          //        dopiero jak większa to wtedy ta cma moze sobie leciec do lampy
+          if(random.nextDouble() > config.mothLampApproachChance){
+            destinationX = destinationX + random.nextInt(2+1)
+            destinationY = destinationY + random.nextInt(2+1)
+          }
+        }
 
         //newGrid.cells(destinationX)(destinationY).isInstanceOf[LampCell]
 //
