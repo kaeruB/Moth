@@ -5,7 +5,7 @@ import com.avsystem.commons.misc.Opt
 import com.avsystem.commons.SharedExtensions._
 import moth.config.MothConfig
 import moth.model.MothType.MothType
-import moth.model.{LampCell, MothCell, MothType}
+import moth.model.{LampCell, LampType, MothCell, MothType}
 import moth.simulation.MothMetrics
 import pl.edu.agh.xinuk.algorithm.MovesController
 import pl.edu.agh.xinuk.model._
@@ -31,7 +31,10 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
           random.nextInt(3) match {
             case 0 =>
               if (random.nextDouble() < config.lampChance){
-                LampCell.create(config.lampInitialSignal)
+                if(random.nextDouble()< config.lightLampChance)
+                  LampCell.create(config.lampDarkInitialSignal, LampType.Dark)
+                else
+                  LampCell.create(config.lampLightInitialSignal, LampType.Light)
               }
               else{
                 grid.cells(x)(y)
@@ -130,7 +133,8 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
     }
 
     def copyLampCells(x: Int, y: Int, cell: LampCell): Unit = {
-      newGrid.cells(x)(y) = LampCell.create(config.lampInitialSignal)
+//      newGrid.cells(x)(y) = LampCell.create(config.lampDarkInitialSignal, _)
+      newGrid.cells(x)(y)  = cell
     }
 
     def moveMothCells(x: Int, y: Int, cell: MothCell): Unit = {
@@ -232,7 +236,7 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
       case (_, _, MothCell(_, MothType.Female)) => true
       case (_, _, MothCell(_, MothType.Male)) => true
       case (_, _, MothCell(_, MothType.Child)) => true
-      case (_, _, LampCell(_)) => true
+      case (_, _, LampCell(_, _)) => true
       case (_, _, _) => false   //pozostale, w tym lampCell nie przemieszcza sie
     })
 

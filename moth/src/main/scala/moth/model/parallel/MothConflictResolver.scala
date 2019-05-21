@@ -25,20 +25,20 @@ object MothConflictResolver extends ConflictResolver[MothConfig]{
       case (MothCell(currentSmell, mothType), MothCell(incomingSmell, currentMothType)) =>
         (MothCell(currentSmell + incomingSmell, mothType), MothMetrics.empty())
 
-      case (LampCell(currentSmell), EmptyCell(incomingSmell)) =>
-        (LampCell(currentSmell + incomingSmell), MothMetrics.empty())
+      case (LampCell(currentSmell, lampType), EmptyCell(incomingSmell)) =>
+        (LampCell(currentSmell + incomingSmell, lampType), MothMetrics.empty())
 
-      case (EmptyCell(currentSmell), LampCell(incomingSmell)) =>
-        (LampCell(currentSmell + incomingSmell), MothMetrics.empty())
+      case (EmptyCell(currentSmell), LampCell(incomingSmell, lampType)) =>
+        (LampCell(currentSmell + incomingSmell, lampType), MothMetrics.empty())
 
-      case (LampCell(currentSmell), LampCell(incomingSmell)) =>
-        (LampCell(currentSmell + incomingSmell), MothMetrics.empty())
+      case (LampCell(currentSmell, currentLampType), LampCell(incomingSmell, lampType)) =>
+        (LampCell(currentSmell + incomingSmell, currentLampType), MothMetrics.empty())
 
-      case (MothCell(currentSmell, mothType), LampCell(incomingSmell)) =>
-        (LampCell(incomingSmell), MothMetrics.empty())
+      case (MothCell(currentSmell, mothType), LampCell(incomingSmell, lampType)) =>
+        (LampCell(incomingSmell, lampType), MothMetrics.empty())
 
-      case (LampCell(currentSmell), MothCell(incomingSmell, mothType)) =>
-        (LampCell(currentSmell), MothMetrics.empty())
+      case (LampCell(currentSmell, lampType), MothCell(incomingSmell, mothType)) =>
+        (LampCell(currentSmell, lampType), MothMetrics.empty())
 
       case (Obstacle, _) => (Obstacle, MothMetrics.empty())
       case (x, y) => throw new UnsupportedOperationException(s"Unresolved conflict: $x with $y")

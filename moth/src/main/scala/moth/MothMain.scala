@@ -5,7 +5,7 @@ import java.awt.Color
 import com.typesafe.scalalogging.LazyLogging
 import moth.algorithm.MothMovesController
 import moth.config.MothConfig
-import moth.model.{LampCell, MothCell, MothType}
+import moth.model.{LampCell, LampType, MothCell, MothType}
 import moth.model.parallel.MothConflictResolver
 import pl.edu.agh.xinuk.Simulation
 import pl.edu.agh.xinuk.model.{DefaultSmellPropagation, Obstacle, SmellingCell}
@@ -28,7 +28,8 @@ object MothMain extends LazyLogging {
             case MothCell(_, MothType.Female) => Color.PINK
             case MothCell(_, MothType.Male) => Color.BLUE
             case MothCell(_, MothType.Child) => Color.RED
-            case LampCell(_) => Color.YELLOW
+            case LampCell(_, LampType.Light) => new Color(255, 255, 102)  //light yellow
+            case LampCell(_, LampType.Dark) => new Color(255, 128, 0) //dark yellow- orange
             case cell: SmellingCell => Color.BLACK
               // DO TESTOW - KOLORKI:
             //case cell: SmellingCell => cellToColorRegionsPrimitive(cell)
