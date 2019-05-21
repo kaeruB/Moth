@@ -24,5 +24,6 @@ final case class MothConfig(
                              lampChance: Double,
                              mothChance: Double,
                              mothDeathChance: Double,
-                             maleMothChance: Double
+                             maleMothChance: Double,
+                             mothLampApproachChance: Double
                            ) extends XinukConfig
