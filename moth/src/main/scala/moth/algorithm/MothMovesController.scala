@@ -76,6 +76,25 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
   }
 
   def selectDestinationCell(possibleDestinations: Iterator[(Int, Int, GridPart)], newGrid: Grid): commons.Opt[(Int, Int, GridPart)] = {
+    var possibleDestinationsWithoutLampsNearby: Iterator[(Int, Int, GridPart)] = null
+
+    // do tego dac te bez neghoubrow lampowych
+//    possibleDestinations.foreach(
+//      e => {
+//        e match {
+//          case (_, _, LampCell(_)) =>
+//          case _ =>
+//        }
+//      }
+
+      // {
+//        match e {
+//          case (_, _, LampCell(_)) =>
+//          case _ =>
+//        }
+//      }
+//    )
+
     possibleDestinations
       .map { case (i, j, current) => (i, j, current, newGrid.cells(i)(j)) }
       .collectFirstOpt {
@@ -85,6 +104,11 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
                 (i, j, currentCell)
             }
   }
+
+//  def checkIfLampIsNear(x: Int, y: Int): Boolean = {
+//    val neighbours = Grid.neighbourCellCoordinates(x, y)
+//
+//  }
 
   def searchForFemale(x: Int, y: Int, cell: MothCell, grid: Grid): Option[(Int, Int)] = {
     val neighbours = Grid.neighbourCellCoordinates(x, y)
@@ -110,7 +134,7 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
       case (_, EmptyCell(_)) =>
         true
       case (_, BufferCell(EmptyCell(_))) =>
-        true
+        false // true
       case ( _, _) => false
     })
 
@@ -180,9 +204,8 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
 
 
         //newGrid.cells(destinationX)(destinationY).isInstanceOf[LampCell]
-//
         // tu umiera tylko jak wpadnie na lampe - dwa pierwsze warunki - cmy nie beda znikac wgl, ostatni warunek - cmy znikaja z prawdopodobienstwem jakims tam
-        if ((newGrid.cells(destinationX)(destinationY).isInstanceOf[MothCell]) && random.nextDouble() > config.mothDeathChance) {
+        if (newGrid.cells(destinationX)(destinationY).isInstanceOf[MothCell] && random.nextDouble() > config.mothDeathChance) {
           destinationX = destination.get._1
           destinationY = destination.get._2
         }
