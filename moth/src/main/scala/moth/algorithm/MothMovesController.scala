@@ -4,6 +4,7 @@ import com.avsystem.commons
 import com.avsystem.commons.misc.Opt
 import com.avsystem.commons.SharedExtensions._
 import moth.config.MothConfig
+import moth.model.LampType.LampType
 import moth.model.MothType.MothType
 import moth.model.{LampCell, LampType, MothCell, MothType}
 import moth.simulation.MothMetrics
@@ -133,9 +134,22 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
     }
 
     def copyLampCells(x: Int, y: Int, cell: LampCell): Unit = {
+
+        val lampType: LampType = cell match {
+          case LampCell(_, LampType.Dark) => LampType.Dark
+          case LampCell(_, LampType.Light) => LampType.Light
+          // case MothCell(_, MothType.Child) => MothType.Child
+          case _ => null
+        }
+      if (lampType == LampType.Dark)
+        newGrid.cells(x)(y) = LampCell.create(config.lampDarkInitialSignal, lampType)
+      else
+        newGrid.cells(x)(y) = LampCell.create(config.lampLightInitialSignal, lampType)
+
+
+      }
 //      newGrid.cells(x)(y) = LampCell.create(config.lampDarkInitialSignal, _)
-      newGrid.cells(x)(y)  = cell
-    }
+    // }
 
     def moveMothCells(x: Int, y: Int, cell: MothCell): Unit = {
 
@@ -188,8 +202,6 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
           || newGrid.cells(destinationX-1)(destinationY).isInstanceOf[LampCell] || newGrid.cells(destinationX)(destinationY-1).isInstanceOf[LampCell]
           || newGrid.cells(destinationX+1)(destinationY-1).isInstanceOf[LampCell] || newGrid.cells(destinationX+1)(destinationY-1).isInstanceOf[LampCell]){
 
-            // jezeli wylososwana wartośc jest mniejsza niz szansa, ze cma ma wleciec na lampe to wtedy zmieniamy kierunek latania cmy
-            //        dopiero jak większa to wtedy ta cma moze sobie leciec do lampy
             if(random.nextDouble() > config.mothLampApproachChance){
               destinationX = destinationX + 2 + random.nextInt(2+1)
               destinationY = destinationY + 2 + random.nextInt(2+1)
