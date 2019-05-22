@@ -27,21 +27,23 @@ object MothMain extends LazyLogging {
           {
             case MothCell(_, MothType.Female) => Color.PINK
             case MothCell(_, MothType.Male) => Color.BLUE
-            case MothCell(_, MothType.Child) => Color.RED
+            // case MothCell(_, MothType.Child) => Color.RED
             case LampCell(_, LampType.Light) => new Color(255, 255, 102)  //light yellow
             case LampCell(_, LampType.Dark) => new Color(255, 128, 0) //dark yellow- orange
-            case cell: SmellingCell => Color.BLACK
+            // case cell: SmellingCell => Color.BLACK
               // DO TESTOW - KOLORKI:
-//            case cell: SmellingCell => cellToColorRegionsPrimitive(cell)
+            case cell: SmellingCell => cellToColorRegionsPrimitive(cell)
           }
         ).start()
   }
 
   private def cellToColorRegionsPrimitive(cell: SmellingCell): Color = {
     val smellValue = cell.smell.map(_.map(_.value).max).max.toFloat
-    if (smellValue > 0.8) Color.RED
-    else if (smellValue > 0.3 && smellValue <= 0.8) Color.PINK
-    else if (smellValue > 0 && smellValue <= 0.3) Color.WHITE // baaardzo maly smell, ale czemu przy lampie jest maly smell, a dalej wiekszy?
+    if (smellValue > 0.015) Color.RED
+    // else if (smellValue <= 0.012 && smellValue > 0.001) Color.WHITE
+//    if (smellValue > 0.8) Color.RED
+//    else if (smellValue > 0.3 && smellValue <= 0.8) Color.PINK
+//    else if (smellValue > 0 && smellValue <= 0.3) Color.WHITE
     else Color.BLACK
   }
 }
