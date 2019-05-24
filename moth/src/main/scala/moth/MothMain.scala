@@ -31,7 +31,6 @@ object MothMain extends LazyLogging {
             case LampCell(_, LampType.Light) => new Color(255, 255, 102)  //light yellow
             case LampCell(_, LampType.Dark) => new Color(255, 128, 0) //dark yellow- orange
             // case cell: SmellingCell => Color.BLACK
-              // DO TESTOW - KOLORKI:
             case cell: SmellingCell => cellToColorRegionsPrimitive(cell)
           }
         ).start()

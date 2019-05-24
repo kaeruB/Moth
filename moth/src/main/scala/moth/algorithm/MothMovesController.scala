@@ -95,12 +95,14 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
   def moveMothCells(x: Int, y: Int, cell: MothCell, newGrid: Grid): Unit = {
     multiplicateMoths(x, y, cell, newGrid)
 
+    val vacatedCell = EmptyCell(cell.smell)
+
     val destinations = calculatePossibleDestinations(cell, x, y, grid)
     val destination = selectDestinationCell(destinations, newGrid)
 
-    // brak mozliwych ruchow
     if (destination.isEmpty) {
-      copyCells(x, y, cell, newGrid)
+      // nowhere to go, let it burn
+      newGrid.cells(x)(y) = vacatedCell
     }
     else {
       val mothType: MothType = cell match {
@@ -118,7 +120,7 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
       //        if (newGrid.cells(destinationX)(destinationY).smell.map(_.map(_.value).max).max.toFloat > config.maximalSignalNotBurningMoths)
       //          isMothToBurn = true
 
-      val vacatedCell = EmptyCell(cell.smell)
+
 
       Opt(destinationX, destinationY, targetCell) match {
         case Opt((i, j, EmptyCell(_))) =>
