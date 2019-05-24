@@ -117,21 +117,16 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
 
       val occupiedCell = MothCell(targetCell.smell, mothType)
 
-      //        if (newGrid.cells(destinationX)(destinationY).smell.map(_.map(_.value).max).max.toFloat > config.maximalSignalNotBurningMoths)
-      //          isMothToBurn = true
-
-
-
       Opt(destinationX, destinationY, targetCell) match {
         case Opt((i, j, EmptyCell(_))) =>
           if (!isMothToBurn) newGrid.cells(i)(j) = occupiedCell
           else newGrid.cells(i)(j) = EmptyCell(cell.smell)
-          newGrid.cells(x)(y) = vacatedCell // podmianka oproznionej celki na vacatedCell
+          newGrid.cells(x)(y) = vacatedCell
           grid.cells(x)(y) = vacatedCell
         case Opt((i, j, BufferCell(EmptyCell(_)))) =>
           if (!isMothToBurn) newGrid.cells(i)(j) = BufferCell(occupiedCell)
           else newGrid.cells(i)(j) = BufferCell(EmptyCell(cell.smell))
-          newGrid.cells(x)(y) = vacatedCell // podmianka oproznionej celki na vacatedCell
+          newGrid.cells(x)(y) = vacatedCell
           grid.cells(x)(y) = vacatedCell
         case _ =>
           newGrid.cells(x)(y) = occupiedCell
@@ -293,20 +288,4 @@ final class MothMovesController(bufferZone: TreeSet[(Int, Int)])(implicit config
     else
       newGrid.cells(x)(y) = LampCell.create(config.lampLightInitialSignal, lampType)
   }
-
-  //  def checkIfMothToBurn(x: Int, y: Int, newGrid: Grid): Boolean = {
-  //    val neighbours = Grid.neighbourCellCoordinates(x, y)
-  //
-  //    var counter = 0
-  //    for (i <- neighbours.indices) {
-  //      if (neighbours(i)._1 < config.gridSize && neighbours(i)._2 < config.gridSize && neighbours(i)._1 > 0 && neighbours(i)._2 > 0)
-  //        if (grid.cells(neighbours(i)._1)(neighbours(i)._2).smell.map(_.map(_.value).max).max.toFloat > config.maximalSignalNotBurningMoths)
-  //          counter += 1
-  //    }
-  //    // println(counter)
-  //    if (counter >= 7)
-  //      return true
-  //
-  //    false
-  //  }
 }
